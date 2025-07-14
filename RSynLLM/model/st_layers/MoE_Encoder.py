@@ -71,7 +71,7 @@ class GCTblock_enc(nn.Module):
         # embedding
         embed_inputs = self.data_embedding(x)  # [B, C, N, T]
         current_inputs = self.total(embed_inputs.permute(0, 2, 3, 1))
-        shared_feat = self.AGCNs(current_inputs, supports)  #是否先共享空间特征提取
+        shared_feat = self.AGCNs(current_inputs, supports)
 
         load, gas, heat = torch.chunk(embed_inputs, embed_inputs.size()[1], dim=1)
         load_emb = self.single_load(load.permute(0, 3, 2, 1)) #[B, T, N, C]
