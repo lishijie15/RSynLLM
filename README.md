@@ -31,13 +31,15 @@ We introduce a risk-aware loss function that asymmetrically penalizes prediction
 * Customized prompt instructions are designed to guide LLMs in perceiving the spatio-temporal evolution of various energy loads.
 * A novel large-scale M-PDN is constructed using real data to validate the superior performance of the proposed RSynLLM.
 
+![image](pictures/M_PDN.png)
+
 ## Simulation Setting
 
 Our simulation employs the powerful [Vicuna-7B](https://dl.acm.org/doi/abs/10.5555/3666122.3668142) as the foundational LLM for RSynLLM. As an enhanced version of LLaMA-7B, Vicuna-7B is particularly well-suited for scenarios requiring precise comprehension of numerical data, contextual information, and the execution of complex prompt instructions. Moreover, the 7B parameter scale strikes an optimal balance between performance and efficiency, enabling deployment across a broader range of real-world environments. Notably, we adopt a two-stage training strategy and follow a 1:1:1 ratio to divide the numerical dataset into training, validation, and testing subsets. 
 During the first stage, we utilize the divided numerical dataset to independently train the routing MoE encoder using the risk-aware loss function as the objective. In the second stage, the pre-trained routing MoE encoder and the parameters of the LLM (Vicuna-7B) remain entirely frozen, while only the customized prompt instructions and the marker alignment parameters are updated based on *L*<sub>joint</sub>.
 At this stage, the input to the LLM consists of customized prompt instructions that embed the multi-energy load encoding. This two-stage training strategy reduces computational costs while preserving accuracy.
 
-Both the observed time steps $\alpha$ and the prediction time steps 𝛽 are set to 12, with a time scale of 1 hour. This enables us to achieve multi-energy load forecasting 1 to 12 hours in advance, providing flexibility for short-term energy planning.
+Both the observed time steps 𝛼 and the prediction time steps 𝛽 are set to 12, with a time scale of 1 hour. This enables us to achieve multi-energy load forecasting 1 to 12 hours in advance, providing flexibility for short-term energy planning.
 We evaluate prediction performance using root mean square error (RMSE), mean absolute error (MAE), and mean absolute percentage error (MAPE), [which](https://ieeexplore.ieee.org/document/10219063) measure prediction errors without distinguishing between positive and negative deviations.
 These standard metrics quantify the discrepancy between predictions and actual values, maintaining consistency with established practices in the field for statistical error analysis.
 Additionally, we conduct risk-aware analysis to assess asymmetric error impacts.
