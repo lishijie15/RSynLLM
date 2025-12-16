@@ -1,20 +1,26 @@
 # RSynLLM: A Risk-Aware Routing Mixture-of-Experts Large Language Model for Multi-energy Load Forecasting in Large-scale Power Distribution Networks
 
-Shijie Li<sup>a</sup>, Lin Wu<sup>a</sup>, Tianjiao Peng<sup>a</sup>, Jiesheng Huang<sup>a</sup>, Huaiguang Jiang<sup>a</sup> (Corresponding author), Ying Xue<sup>b</sup>, Jun Zhang<sup>c</sup>, David Wenzhong Gao<sup>d</sup>  
+Shijie Li<sup>a</sup>, Lin Wu<sup>a</sup>, Tianjiao Peng<sup>a</sup>, Jiesheng Huang<sup>a</sup>, Huaiguang Jiang<sup>a,b,c</sup> (Corresponding author), Ying Xue<sup>d</sup>, Jun Zhang<sup>e</sup>, David Wenzhong Gao<sup>f</sup>  
 
-<sup>a</sup>School of Future Technology, South China University of Technology, Guangzhou 510641, China
+<sup>a</sup>School of Future Technology, South China University of Technology, Guangzhou, 510641, China
 
-<sup>b</sup>School of Electric Power Engineering, South China University of Technology, Guangzhou 510641, China
+<sup>b</sup>Research and Development Department, Guangdong Artificial Intelligence and Digital Economy Laboratory (Guangzhou), Guangzhou, 511400, China
 
-<sup>c</sup>School of Electrical Engineering and Automation, Wuhan University, Wuhan 430072, China
+<sup>c</sup>Guangdong Engineering Research Center of Low-Carbon Synthetic Biotechnology, Guangzhou, 510006, China
 
-<sup>d</sup>Department of Electrical and Computer Engineering, University of Denver, CO 80208, USA
+<sup>d</sup>School of Electric Power Engineering, South China University of Technology, Guangzhou, 510641, China
+
+<sup>e</sup>School of Electrical Engineering and Automation, Wuhan University, Wuhan, 430072, China
+
+<sup>f</sup>Department of Electrical and Computer Engineering, University of Denver, CO, 80208, USA
 
 -----
 
 ## Abstract
 
-*Accurate prediction of multi-energy loads serves as a vital foundation for ensuring the safe and efficient operation of power distribution networks (PDNs). However, existing methods often overlook the physical characteristics of different energy loads, which makes it challenging to precisely capture their spatio-temporal evolution patterns. Moreover, these methods typically focus on minimizing statistical errors, without considering the misalignment between prediction accuracy and scheduling objectives. To address these limitations, we propose a novel model named risk-aware synergy large language model (RSynLLM). This model incorporates a routing mixture-of-experts framework, with tailored load experts designed to thoroughly analyze the distinct physical characteristics of various energy loads. A dynamic router adaptively assigns weights to these experts based on their respective contributions. Additionally, we introduce a risk-aware loss function that asymmetrically evaluates prediction errors while explicitly quantifying tail risks. This drives the LLM to actively suppress load underestimation tendencies and mitigate the risks of sudden disturbances, thereby aligning prediction outcomes with decision-making objectives. Furthermore, customized prompt instructions are designed to guide the LLM in accurately perceiving the spatio-temporal evolution patterns of multi-energy loads. Extensive simulations conducted on a newly constructed large-scale multi-energy PDN dataset, built using real-world data, demonstrate that the proposed RSynLLM consistently achieves state-of-the-art performance in both prediction accuracy and risk awareness.*
+*Accurate prediction of multi-energy loads is crucial for ensuring the safe and efficient operation of power distribution networks (PDNs). However, existing methods often overlook the distinct physical characteristics of different energy loads, which makes it challenging to precisely capture their spatio-temporal evolution patterns.
+Moreover, these methods primarily minimize statistical errors while neglecting the asymmetric impact of prediction errors on downstream decision-making. To address these limitations, we propose a novel model named risk-aware synergy large language model (RSynLLM). This model incorporates a routing mixture-of-experts framework, with tailored load experts designed to capture the unique physical characteristics of various energy loads. A dynamic router adaptively weights these experts according to their contributions.
+We introduce a risk-aware loss function that asymmetrically penalizes prediction errors while explicitly quantifying tail risks. This drives the large language model (LLM) to actively suppress load underestimation tendencies and mitigate disruption risks, thereby aligning predictions with downstream decision-making objectives. Additionally, customized prompt instructions are designed to guide the LLM in accurately perceiving the spatio-temporal evolution patterns of multi-energy loads. Extensive simulations conducted on a novel large-scale multi-energy PDN dataset, built using real-world data, demonstrate that the proposed RSynLLM consistently achieves state-of-the-art performance in both prediction accuracy and risk awareness.*
 
 ![image](pictures/RSynLLM.png)
 
@@ -27,9 +33,15 @@ Shijie Li<sup>a</sup>, Lin Wu<sup>a</sup>, Tianjiao Peng<sup>a</sup>, Jiesheng H
 
 ## Simulation Setting
 
-Our simulations utilize the powerful [Vicuna-7B](https://dl.acm.org/doi/abs/10.5555/3666122.3668142) as the foundational LLM for RSynLLM. Both the observed time steps and the prediction time steps are set to 12, with a time scale of 1 hour. This enables us to achieve multi-energy load forecasting 1 to 12 hours in advance, providing flexibility for short-term energy planning. The dataset is divided into training, validation, and test sets in a 1:1:1 ratio.
+Our simulation employs the powerful [Vicuna-7B](https://dl.acm.org/doi/abs/10.5555/3666122.3668142) as the foundational LLM for RSynLLM. As an enhanced version of LLaMA-7B, Vicuna-7B is particularly well-suited for scenarios requiring precise comprehension of numerical data, contextual information, and the execution of complex prompt instructions. Moreover, the 7B parameter scale strikes an optimal balance between performance and efficiency, enabling deployment across a broader range of real-world environments. Notably, we adopt a two-stage training strategy and follow a 1:1:1 ratio to divide the numerical dataset into training, validation, and testing subsets. 
+During the first stage, we utilize the divided numerical dataset to independently train the routing MoE encoder using the risk-aware loss function as the objective. In the second stage, the pre-trained routing MoE encoder and the parameters of the LLM (Vicuna-7B) remain entirely frozen, while only the customized prompt instructions and the marker alignment parameters are updated based on *L*<sub>joint</sub>.
+At this stage, the input to the LLM consists of customized prompt instructions that embed the multi-energy load encoding. This two-stage training strategy reduces computational costs while preserving accuracy.
 
-Standard evaluation metrics, including root mean square error (RMSE), mean absolute error (MAE), and mean absolute percentage error (MAPE), are used to quantify the discrepancy between the predicted results and actual labels. These [metrics](https://ieeexplore.ieee.org/document/10219063), which do not distinguish between positive and negative errors, allow for a comprehensive evaluation of the proposed RSynLLM. All neural networks are implemented based on PyTorch and trained and tested on 8 NVIDIA A800 80GB GPUs / 8 NVIDIA H100 80GB GPUs. Key hyperparameter settings are presented as follows:
+Both the observed time steps $\alpha$ and the prediction time steps 𝛽 are set to 12, with a time scale of 1 hour. This enables us to achieve multi-energy load forecasting 1 to 12 hours in advance, providing flexibility for short-term energy planning.
+We evaluate prediction performance using root mean square error (RMSE), mean absolute error (MAE), and mean absolute percentage error (MAPE), [which](https://ieeexplore.ieee.org/document/10219063) measure prediction errors without distinguishing between positive and negative deviations.
+These standard metrics quantify the discrepancy between predictions and actual values, maintaining consistency with established practices in the field for statistical error analysis.
+Additionally, we conduct risk-aware analysis to assess asymmetric error impacts.
+All neural networks are implemented based on PyTorch and trained and tested on 8 NVIDIA A800 80GB GPUs / 8 NVIDIA H100 80GB GPUs. Key hyperparameter settings are presented as follows:
 
 |                        Hyperparameter                        |      Value      |
 | :----------------------------------------------------------: | :-------------: |
@@ -52,8 +64,6 @@ Standard evaluation metrics, including root mean square error (RMSE), mean absol
 |        Observed time steps 𝛼/ Prediction time steps 𝛽        |     12 / 12     |
 |                  Number of attention heads                   |       32        |
 |                   Number of hidden layers                    |       32        |
-
-Currently, only the Routing MoE Encoder code has been organized. The complete code will be available soon.
 
 ## Getting Started
 
@@ -144,9 +154,9 @@ Please follow the instructions to prepare the checkpoints.
 # to fill in the following path to run our RSynLLM!
 model_path=./checkpoints/vicuna-7b-v1.5-16k
 instruct_ds=./power_heat/train_heat/train_heat.json
-st_data_path=./power_heat/train_heat/train_heat.pkl 
+st_data_path=./power_heat/train_heat/train_heat.pkl
 pretra_ste=MoE_Encoder
-output_model=./checkpoints/MoE_Encoder_7b
+output_model=./checkpoints/MoE_Encoder_Heat_GCN_13b_loss_final_
 
 wandb offline
 python -m torch.distributed.run --nnodes=1 --nproc_per_node=8 --master_port=20001 \
@@ -191,7 +201,7 @@ python -m torch.distributed.run --nnodes=1 --nproc_per_node=8 --master_port=2000
 
 #### 3.1. Preparing Checkpoints and Data
 
-* **Checkpoints:** You could try to evaluate RSynLLM by using your own model or our released checkpoints.
+* **Checkpoints:** You could try to evaluate RSynLLM by using your own model.
 * **Data:** We create instruction data for the M-PDN to be used in evaluation. Please refer to the [evaluating](./RSynLLM_eval.sh).
 
 <span id='Running Evaluation'/>
@@ -203,12 +213,12 @@ example as below:
 
 ```shell
 # to fill in the following path to evaluation!
-output_model=./checkpoints/MoE_Encoder_7b
+output_model=./checkpoints/MoE_Encoder_Heat_GCN_13b_loss_final_
 datapath=./power_heat/test_heat/test_heat.json
 st_data_path=./power_heat/test_heat/test_heat.pkl
-res_path=./result_test/MoE_Encoder_7b_eval
+res_path=./result_test/MoE_Encoder_Heat_GCN_13b_loss_final_eval_
 start_id=0
-end_id=593208
+end_id=790944
 num_gpus=8
 
 python ./RSynLLM/eval/test_RSynLLM.py --model-name ${output_model}  --prompting_file ${datapath} --st_data_path ${st_data_path} --output_res_path ${res_path} --start_id ${start_id} --end_id ${end_id} --num_gpus ${num_gpus}
@@ -220,3 +230,19 @@ python ./RSynLLM/eval/test_RSynLLM.py --model-name ${output_model}  --prompting_
 
 You can use [result_infer.py](./metric_calculation/result_infer.py) to calculate the performance metrics of the predicted
 results.
+
+## BibTeX
+If you find our work useful in your research. Please consider giving a star ⭐ and citation 📚.
+
+```bash
+@ARTICLE{RSynllm,
+  author={Li, Shijie and Wu, Lin and Peng, Tianjiao and Huang, Jiesheng and Jiang, Huaiguang and Xue, Ying and Zhang, Jun and Gao, David Wenzhong},
+  journal={Applied Energy}, 
+  title={RSynLLM: A Risk-Aware Routing Mixture-of-Experts Large Language Model for Multi-energy Load Forecasting in Large-scale Distribution Networks}, 
+  year={2026},
+  volume={},
+  number={},
+  pages={},
+  doi={}
+}
+```

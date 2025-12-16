@@ -2,7 +2,7 @@ model_path=./checkpoints/vicuna-13b-v1.5-16k
 instruct_ds=./power_heat/train_heat/train_heat.json  #train_10pv_withUTS.json
 st_data_path=./power_heat/train_heat/train_heat.pkl      #train_pv10_withUTS.pkl
 pretra_ste=MoE_Encoder
-output_model=./checkpoints/MoE_Encoder_Heat_GCN_13b_loss_final_5120
+output_model=./checkpoints/MoE_Encoder_Heat_GCN_13b_loss_final_
 
 wandb offline
 python -m torch.distributed.run --nnodes=1 --nproc_per_node=8 --master_port=20001 \
