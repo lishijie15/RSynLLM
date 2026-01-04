@@ -9,7 +9,7 @@ from transformers import AutoConfig, AutoModelForCausalLM, \
     LlamaConfig, LlamaModel, LlamaForCausalLM
 
 from transformers.modeling_outputs import BaseModelOutputWithPast, CausalLMOutputWithPast
-from RSynLLM.model.st_layers import ST_Enc, parse_args
+from RSynLLM.model.st_layers import ST_Enc, parse_args, RiskLoss
 import json
 import os.path as osp
 import glob
@@ -425,11 +425,9 @@ class STLlamaForCausalLM(LlamaForCausalLM):
 
 
             loss_regress = rec_loss(regress_result, labels_stpre)
-            labels_classificate = labels_stpre
-            labels_classificate[labels_classificate >= 1] = 1
-            labels_classificate[labels_classificate < 1] = 0
-            loss_classificate = bce_loss(classificate_result, labels_classificate)
+            loss_risk = RiskLoss(regress_result, labels_stpre)
 
+            # loss = loss_fct(shift_logits, shift_labels) + loss_risk
             loss = loss_fct(shift_logits, shift_labels) + loss_regress
 
         if not return_dict:
