@@ -242,9 +242,9 @@ If you find our work useful in your research. Please consider giving a star ⭐ 
   journal={Applied Energy}, 
   title={RSynLLM: A Risk-Aware Routing Mixture-of-Experts Large Language Model for Multi-energy Load Forecasting in Large-scale Distribution Networks}, 
   year={2026},
-  volume={},
+  volume={406},
   number={},
   pages={},
-  doi={}
+  doi={10.1016/j.apenergy.2025.127227}
 }
 ```
