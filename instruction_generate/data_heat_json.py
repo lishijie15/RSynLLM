@@ -8,7 +8,7 @@ from configparser import ConfigParser
 from datetime import datetime, timedelta
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--dataset', type=str, choices=['EXPYTKY', 'EXPYTKY*', 'power_traffic', 'power_DG', 'power_heat'], default='power_heat', help='which dataset to run')
+parser.add_argument('--dataset', type=str, choices=['power_DG', 'power_heat'], default='power_heat', help='which dataset to run')
 parser.add_argument('--month', type=str, default='power_heat_200712', help='which experiment setting (month) to run as testing data')
 args = parser.parse_args()
 
@@ -151,26 +151,7 @@ dict_list = [{"from": human, "value": s} for s in text_conversations]
 out_list = [[y, gpt] for y in dict_list]
 result_list = [{"id": f, "conversations": e} for f, e in zip(final_text_id, out_list)]
 
-csv_data = pd.read_csv('coupling_node_1177.csv', header=None)
-node_ids = csv_data.iloc[:, 0].tolist()
-
 result_list_by_id = {item['id']: item for item in result_list}
-extend_text = ", which includes both regular load and the charging load from electric vehicle charging stations. The recorded photovoltaic generation"
-
-for node_id in node_ids:
-    prefix = f"train_Color_region_{node_id}_{node_id+1}_len_"
-    for i in range(len(result_list)):
-        item_id = f"{prefix}{i}"
-
-        if item_id in result_list_by_id:
-            to_conversations = result_list_by_id[item_id]['conversations'][0]['value']
-            conversations_str = to_conversations.replace(", the recorded photovoltaic generation", extend_text)
-
-            result_list_by_id[item_id]['conversations'][0]['value'] = conversations_str
-    print(node_id)
-print('end')
 
 with open('./test_heat.json', 'w') as f:
     json.dump(list(result_list_by_id.values()), f)
-
-print()

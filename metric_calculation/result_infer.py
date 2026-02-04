@@ -1,9 +1,7 @@
-import torch
 from metrics import All_Metrics
 import json
 import numpy as np
 import os
-from sklearn.metrics import f1_score, recall_score, precision_score, accuracy_score, classification_report
 import math
 
 
@@ -44,7 +42,6 @@ def test(mode, mae_thresh=None, mape_thresh=0.0):
 
     index_all = 0
 
-    # Retrieve all JSON files from a folder and sort them by filename
     file_list = sorted([filename for filename in os.listdir(folder_path) if filename.endswith(".json")])
 
     for idx, filename in enumerate(file_list):
@@ -125,120 +122,80 @@ def test(mode, mae_thresh=None, mape_thresh=0.0):
     y_pred_load, y_pred_gas, y_pred_heat = np.abs(y_pred_load), np.abs(y_pred_gas), np.abs(y_pred_heat)
     print(y_true_load.shape, y_pred_load.shape, y_true_gas.shape, y_pred_gas.shape, y_true_heat.shape, y_pred_heat.shape)
 
-    if mode == 'classification':
-        test_classfication(y_true_load, y_pred_load, y_true_gas, y_pred_gas, y_true_heat, y_pred_heat)
-    else:
-        print("************* load EVAL *************")
-        for t in range(y_true_load.shape[1]):
-            mae, rmse, mape, _, _ = All_Metrics(y_pred_load[:, t, ...], y_true_load[:, t, ...], mae_thresh, mape_thresh, None)
-            rarr = compute_rarr(y_pred=y_pred_load[:, t, ...], y_true=y_true_load[:, t, ...])
-            worst_mae = worst_n_mae(y_pred_load[:, t, ...],y_true_load[:, t, ...],5)
-            print("Horizon {:02d}, MAE: {:.2f}, RMSE: {:.2f}, MAPE: {:.4f}% RARR: {:.4f}% worst5% mae: {:.4f}".format(t + 1, mae, rmse, mape * 100,rarr * 100, worst_mae))
-        mae, rmse, mape, _, _ = All_Metrics(y_pred_load, y_true_load, mae_thresh, mape_thresh, None)
-        rarr = compute_rarr(y_pred=y_pred_load, y_true=y_true_load)
-        worst_mae = worst_n_mae(y_pred_load,y_true_load,5)
-        print("Average Horizon, MAE: {:.2f}, RMSE: {:.2f}, MAPE: {:.4f}%, RARR: {:.4f}% worst5% mae: {:.4f}".format(mae, rmse, mape * 100,rarr * 100, worst_mae))
-        print("************* gas EVAL *************")
-        for t in range(y_true_load.shape[1]):
-            mae, rmse, mape, _, _ = All_Metrics(y_pred_gas[:, t, ...], y_true_gas[:, t, ...], mae_thresh, mape_thresh, None)
-            rarr = compute_rarr(y_pred=y_pred_gas[:, t, ...], y_true=y_true_gas[:, t, ...])
-            worst_mae = worst_n_mae(y_pred_gas[:, t, ...],y_true_gas[:, t, ...],5)
-            print("Horizon {:02d}, MAE: {:.2f}, RMSE: {:.2f}, MAPE: {:.4f}% RARR: {:.4f}% worst5% mae: {:.4f}".format(t + 1, mae, rmse, mape * 100,rarr * 100, worst_mae))
-        mae, rmse, mape, _, _ = All_Metrics(y_pred_gas, y_true_gas, mae_thresh, mape_thresh, None)
-        rarr = compute_rarr(y_pred=y_pred_gas, y_true=y_true_gas)
-        worst_mae = worst_n_mae(y_pred_gas,y_true_gas,5)
-        print("Average Horizon, MAE: {:.2f}, RMSE: {:.2f}, MAPE: {:.4f}%, RARR: {:.4f}% worst5% mae: {:.4f}".format(mae, rmse, mape * 100,rarr * 100, worst_mae))
-        print("************* heat EVAL *************")
-        for t in range(y_true_load.shape[1]):
-            mae, rmse, mape, _, _ = All_Metrics(y_pred_heat[:, t, ...], y_true_heat[:, t, ...], mae_thresh, mape_thresh, None)
-            rarr = compute_rarr(y_pred=y_pred_heat[:, t, ...], y_true=y_true_heat[:, t, ...])
-            worst_mae = worst_n_mae(y_pred_heat[:, t, ...],y_true_heat[:, t, ...],5)
-            print("Horizon {:02d}, MAE: {:.2f}, RMSE: {:.2f}, MAPE: {:.4f}% RARR: {:.4f}% worst5% mae: {:.4f}".format(t + 1, mae, rmse, mape * 100,rarr * 100, worst_mae))
-        mae, rmse, mape, _, _ = All_Metrics(y_pred_heat, y_true_heat, mae_thresh, mape_thresh, None)
-        rarr = compute_rarr(y_pred=y_pred_heat, y_true=y_true_heat)
-        worst_mae = worst_n_mae(y_pred_heat,y_true_heat,5)
-        print("Average Horizon, MAE: {:.2f}, RMSE: {:.2f}, MAPE: {:.4f}%, RARR: {:.4f}% worst5% mae: {:.4f}".format(mae, rmse, mape * 100,rarr * 100, worst_mae))
-        print("************* average EVAL *************")
-        for t in range(y_true_load.shape[1]):
-            heat_mae, heat_rmse, heat_mape, _, _ = All_Metrics(y_pred_heat[:, t, ...], y_true_heat[:, t, ...], mae_thresh, mape_thresh, None)
-            heat_rarr = compute_rarr(y_pred=y_pred_heat[:, t, ...], y_true=y_true_heat[:, t, ...])
-            heat_worst_mae = worst_n_mae(y_pred_heat[:, t, ...],y_true_heat[:, t, ...],5)
+    print("************* load EVAL *************")
+    for t in range(y_true_load.shape[1]):
+        mae, rmse, mape, _, _ = All_Metrics(y_pred_load[:, t, ...], y_true_load[:, t, ...], mae_thresh, mape_thresh, None)
+        rarr = compute_rarr(y_pred=y_pred_load[:, t, ...], y_true=y_true_load[:, t, ...])
+        worst_mae = worst_n_mae(y_pred_load[:, t, ...],y_true_load[:, t, ...],5)
+        print("Horizon {:02d}, MAE: {:.2f}, RMSE: {:.2f}, MAPE: {:.4f}% RARR: {:.4f}% worst5% mae: {:.4f}".format(t + 1, mae, rmse, mape * 100,rarr * 100, worst_mae))
+    mae, rmse, mape, _, _ = All_Metrics(y_pred_load, y_true_load, mae_thresh, mape_thresh, None)
+    rarr = compute_rarr(y_pred=y_pred_load, y_true=y_true_load)
+    worst_mae = worst_n_mae(y_pred_load,y_true_load,5)
+    print("Average Horizon, MAE: {:.2f}, RMSE: {:.2f}, MAPE: {:.4f}%, RARR: {:.4f}% worst5% mae: {:.4f}".format(mae, rmse, mape * 100,rarr * 100, worst_mae))
+    print("************* gas EVAL *************")
+    for t in range(y_true_load.shape[1]):
+        mae, rmse, mape, _, _ = All_Metrics(y_pred_gas[:, t, ...], y_true_gas[:, t, ...], mae_thresh, mape_thresh, None)
+        rarr = compute_rarr(y_pred=y_pred_gas[:, t, ...], y_true=y_true_gas[:, t, ...])
+        worst_mae = worst_n_mae(y_pred_gas[:, t, ...],y_true_gas[:, t, ...],5)
+        print("Horizon {:02d}, MAE: {:.2f}, RMSE: {:.2f}, MAPE: {:.4f}% RARR: {:.4f}% worst5% mae: {:.4f}".format(t + 1, mae, rmse, mape * 100,rarr * 100, worst_mae))
+    mae, rmse, mape, _, _ = All_Metrics(y_pred_gas, y_true_gas, mae_thresh, mape_thresh, None)
+    rarr = compute_rarr(y_pred=y_pred_gas, y_true=y_true_gas)
+    worst_mae = worst_n_mae(y_pred_gas,y_true_gas,5)
+    print("Average Horizon, MAE: {:.2f}, RMSE: {:.2f}, MAPE: {:.4f}%, RARR: {:.4f}% worst5% mae: {:.4f}".format(mae, rmse, mape * 100,rarr * 100, worst_mae))
+    print("************* heat EVAL *************")
+    for t in range(y_true_load.shape[1]):
+        mae, rmse, mape, _, _ = All_Metrics(y_pred_heat[:, t, ...], y_true_heat[:, t, ...], mae_thresh, mape_thresh, None)
+        rarr = compute_rarr(y_pred=y_pred_heat[:, t, ...], y_true=y_true_heat[:, t, ...])
+        worst_mae = worst_n_mae(y_pred_heat[:, t, ...],y_true_heat[:, t, ...],5)
+        print("Horizon {:02d}, MAE: {:.2f}, RMSE: {:.2f}, MAPE: {:.4f}% RARR: {:.4f}% worst5% mae: {:.4f}".format(t + 1, mae, rmse, mape * 100,rarr * 100, worst_mae))
+    mae, rmse, mape, _, _ = All_Metrics(y_pred_heat, y_true_heat, mae_thresh, mape_thresh, None)
+    rarr = compute_rarr(y_pred=y_pred_heat, y_true=y_true_heat)
+    worst_mae = worst_n_mae(y_pred_heat,y_true_heat,5)
+    print("Average Horizon, MAE: {:.2f}, RMSE: {:.2f}, MAPE: {:.4f}%, RARR: {:.4f}% worst5% mae: {:.4f}".format(mae, rmse, mape * 100,rarr * 100, worst_mae))
+    print("************* average EVAL *************")
+    for t in range(y_true_load.shape[1]):
+        heat_mae, heat_rmse, heat_mape, _, _ = All_Metrics(y_pred_heat[:, t, ...], y_true_heat[:, t, ...], mae_thresh, mape_thresh, None)
+        heat_rarr = compute_rarr(y_pred=y_pred_heat[:, t, ...], y_true=y_true_heat[:, t, ...])
+        heat_worst_mae = worst_n_mae(y_pred_heat[:, t, ...],y_true_heat[:, t, ...],5)
 
-            gas_mae, gas_rmse, gas_mape, _, _ = All_Metrics(y_pred_gas[:, t, ...], y_true_gas[:, t, ...], mae_thresh, mape_thresh, None)
-            gas_rarr = compute_rarr(y_pred=y_pred_gas[:, t, ...], y_true=y_true_gas[:, t, ...])
-            gas_worst_mae = worst_n_mae(y_pred_gas[:, t, ...],y_true_gas[:, t, ...],5)
+        gas_mae, gas_rmse, gas_mape, _, _ = All_Metrics(y_pred_gas[:, t, ...], y_true_gas[:, t, ...], mae_thresh, mape_thresh, None)
+        gas_rarr = compute_rarr(y_pred=y_pred_gas[:, t, ...], y_true=y_true_gas[:, t, ...])
+        gas_worst_mae = worst_n_mae(y_pred_gas[:, t, ...],y_true_gas[:, t, ...],5)
 
-            load_mae, load_rmse, load_mape, _, _ = All_Metrics(y_pred_load[:, t, ...], y_true_load[:, t, ...], mae_thresh, mape_thresh, None)
-            load_rarr = compute_rarr(y_pred=y_pred_load[:, t, ...], y_true=y_true_load[:, t, ...])
-            load_worst_mae = worst_n_mae(y_pred_load[:, t, ...],y_true_load[:, t, ...],5)
-            mae = (heat_mae + gas_mae + load_mae) / 3
-            rmse = (heat_rmse + gas_rmse + load_rmse) / 3
-            mape = (heat_mape + gas_mape + load_mape) / 3
-            rarr = (heat_rarr + gas_rarr + load_rarr) / 3
-            worst_mae = (heat_worst_mae + gas_worst_mae + load_worst_mae) / 3
-            print("Horizon {:02d}, MAE: {:.2f}, RMSE: {:.2f}, MAPE: {:.4f}% RARR: {:.4f}% worst5% mae: {:.4f}".format(t + 1, mae, rmse, mape * 100,rarr * 100, worst_mae))
-        heat_mae, heat_rmse, heat_mape, _, _ = All_Metrics(y_pred_heat, y_true_heat, mae_thresh, mape_thresh, None)
-        heat_rarr = compute_rarr(y_pred=y_pred_heat, y_true=y_true_heat)
-        heat_worst_mae = worst_n_mae(y_pred_heat,y_true_heat,5)
-
-        gas_mae, gas_rmse, gas_mape, _, _ = All_Metrics(y_pred_gas, y_true_gas, mae_thresh, mape_thresh, None)
-        gas_rarr = compute_rarr(y_pred=y_pred_gas, y_true=y_true_gas)
-        gas_worst_mae = worst_n_mae(y_pred_gas,y_true_gas,5)
-
-        load_mae, load_rmse, load_mape, _, _ = All_Metrics(y_pred_load, y_true_load, mae_thresh, mape_thresh, None)
-        load_rarr = compute_rarr(y_pred=y_pred_load, y_true=y_true_load)
-        load_worst_mae = worst_n_mae(y_pred_load,y_true_load,5)
+        load_mae, load_rmse, load_mape, _, _ = All_Metrics(y_pred_load[:, t, ...], y_true_load[:, t, ...], mae_thresh, mape_thresh, None)
+        load_rarr = compute_rarr(y_pred=y_pred_load[:, t, ...], y_true=y_true_load[:, t, ...])
+        load_worst_mae = worst_n_mae(y_pred_load[:, t, ...],y_true_load[:, t, ...],5)
         mae = (heat_mae + gas_mae + load_mae) / 3
         rmse = (heat_rmse + gas_rmse + load_rmse) / 3
         mape = (heat_mape + gas_mape + load_mape) / 3
         rarr = (heat_rarr + gas_rarr + load_rarr) / 3
         worst_mae = (heat_worst_mae + gas_worst_mae + load_worst_mae) / 3
-        print("Average Horizon, MAE: {:.2f}, RMSE: {:.2f}, MAPE: {:.4f}%, RARR: {:.4f}% worst5% mae: {:.4f}".format(mae, rmse, mape * 100,rarr * 100, worst_mae))
+        print("Horizon {:02d}, MAE: {:.2f}, RMSE: {:.2f}, MAPE: {:.4f}% RARR: {:.4f}% worst5% mae: {:.4f}".format(t + 1, mae, rmse, mape * 100,rarr * 100, worst_mae))
+    heat_mae, heat_rmse, heat_mape, _, _ = All_Metrics(y_pred_heat, y_true_heat, mae_thresh, mape_thresh, None)
+    heat_rarr = compute_rarr(y_pred=y_pred_heat, y_true=y_true_heat)
+    heat_worst_mae = worst_n_mae(y_pred_heat,y_true_heat,5)
+
+    gas_mae, gas_rmse, gas_mape, _, _ = All_Metrics(y_pred_gas, y_true_gas, mae_thresh, mape_thresh, None)
+    gas_rarr = compute_rarr(y_pred=y_pred_gas, y_true=y_true_gas)
+    gas_worst_mae = worst_n_mae(y_pred_gas,y_true_gas,5)
+
+    load_mae, load_rmse, load_mape, _, _ = All_Metrics(y_pred_load, y_true_load, mae_thresh, mape_thresh, None)
+    load_rarr = compute_rarr(y_pred=y_pred_load, y_true=y_true_load)
+    load_worst_mae = worst_n_mae(y_pred_load,y_true_load,5)
+    mae = (heat_mae + gas_mae + load_mae) / 3
+    rmse = (heat_rmse + gas_rmse + load_rmse) / 3
+    mape = (heat_mape + gas_mape + load_mape) / 3
+    rarr = (heat_rarr + gas_rarr + load_rarr) / 3
+    worst_mae = (heat_worst_mae + gas_worst_mae + load_worst_mae) / 3
+    print("Average Horizon, MAE: {:.2f}, RMSE: {:.2f}, MAPE: {:.4f}%, RARR: {:.4f}% worst5% mae: {:.4f}".format(mae, rmse, mape * 100,rarr * 100, worst_mae))
 
 
-def test_classfication(y_true_load, y_pred_load, y_true_gas, y_pred_gas, y_true_heat, y_pred_heat):
-
-    for i in range(4):
-        if i == 0:
-            y_true = y_true_load
-            y_pred = y_pred_load
-        elif i == 1:
-            y_true = y_true_gas
-            y_pred = y_pred_gas
-        elif i == 2:
-            y_true = y_true_heat
-            y_pred = y_pred_heat
-        y_true[y_true > 1] = 1
-        y_pred[y_pred >= 0.5] = 1
-        y_pred[y_pred < 0.5] = 0
-
-        y_true, y_pred = y_true.reshape(-1), y_pred.reshape(-1)
-
-        recall = recall_score(y_true, y_pred)
-        precision = precision_score(y_true, y_pred)
-        accuracy = accuracy_score(y_true, y_pred)
-        micro_f1 = f1_score(y_true, y_pred, average='micro')
-        macro_f1 = f1_score(y_true, y_pred, average='macro')
-        f1 = f1_score(y_true, y_pred)
-
-        print(f"Accuracy: {accuracy:.2f}")
-        print(f"Precision: {precision:.2f}")
-        print(f"Recall: {recall:.2f}")
-        print(f"MicroF1: {micro_f1:.2f}")
-        print(f"MacroF1: {macro_f1:.2f}")
-        print(f"f1 Score: {f1:.2f}")
 
 ################################ result path ################################
-#folder_path = 'result_test_file/tw2t_multi_reg-cla_NYC_taxi_final'
-# folder_path = 'result_test_file/tw2t_multi_reg-cla_NYC_bike_final'
 
-# 'BURGLARY': 0, 'GRAND LARCENY': 1, 'ROBBERY': 2, 'FELONY ASSAULT': 3
-# folder_path = 'result_test_file/tw2t_multi_reg-cla_NYC_crime1_final'
-# folder_path = 'result_test_file/tw2t_multi_reg-cla_NYC_crime2_final'
-folder_path = '../result_test/MoE_Encoder_Heat_GCN_7b_loss_final_1024_'
+folder_path = '../result_test/MoE_Encoder_Heat_13b_final_eval_'
 
-# mode = 'classification' # regression  or  classification
+
 mode = 'regression'
 
-# Make sure that the total length of your json file(s) a multiple of 80.
 test(mode)

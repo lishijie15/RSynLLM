@@ -158,7 +158,7 @@ model_path=./checkpoints/vicuna-7b-v1.5-16k
 instruct_ds=./power_heat/train_heat/train_heat.json
 st_data_path=./power_heat/train_heat/train_heat.pkl
 pretra_ste=MoE_Encoder
-output_model=./checkpoints/MoE_Encoder_Heat_GCN_13b_loss_final_
+output_model=./checkpoints/MoE_Encoder_Heat_13b_final_
 
 wandb offline
 python -m torch.distributed.run --nnodes=1 --nproc_per_node=8 --master_port=20001 \
@@ -215,10 +215,10 @@ example as below:
 
 ```shell
 # to fill in the following path to evaluation!
-output_model=./checkpoints/MoE_Encoder_Heat_GCN_13b_loss_final_
+output_model=./checkpoints/MoE_Encoder_Heat_13b_final_
 datapath=./power_heat/test_heat/test_heat.json
 st_data_path=./power_heat/test_heat/test_heat.pkl
-res_path=./result_test/MoE_Encoder_Heat_GCN_13b_loss_final_eval_
+res_path=./result_test/MoE_Encoder_Heat_13b_final_eval_
 start_id=0
 end_id=790944
 num_gpus=8

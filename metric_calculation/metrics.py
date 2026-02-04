@@ -7,7 +7,6 @@ def MAE_torch(pred, true, mask_value=None):
         pred = torch.masked_select(pred, mask)
         true = torch.masked_select(true, mask)
     mae_loss = torch.abs(true - pred)
-    # print(mae_loss[mae_loss>3].shape, mae_loss[mae_loss<1].shape, mae_loss.shape)
     return torch.mean(mae_loss), mae_loss
 
 def huber_loss(pred, true, mask_value=None, delta=1.0):
